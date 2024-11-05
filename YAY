@@ -1,0 +1,32 @@
+local Players = game:GetService("Players")
+local TeleportService = game:GetService("TeleportService")
+local ProximityPromptService = game:GetService("ProximityPromptService")
+local player = Players.LocalPlayer
+
+local function teleportToMoneyPrinterAndServerHop()
+	local moneyPrinter = workspace:FindFirstChild("Money Printer")
+	if moneyPrinter then
+		local character = player.Character or player.CharacterAdded:Wait()
+		character:PivotTo(moneyPrinter:GetPivot())
+
+		-- Trigger the proximity prompt
+		local proximityPrompt = moneyPrinter:FindFirstChildOfClass("ProximityPrompt")
+		if proximityPrompt then
+			proximityPrompt:InputHoldBegin()
+		else
+			print("Proximity Prompt not found on Money Printer.")
+		end
+	else
+		-- Server hop to a different server with the specified game ID
+		local servers = TeleportService:GetPlayerPlaceInstanceAsync(7239319209)
+		for _, server in servers do
+			if server.Id ~= game.JobId then
+				TeleportService:TeleportToPlaceInstance(7239319209, server.Id, player)
+				return
+			end
+		end
+		print("No different server found to hop.")
+	end
+end
+
+player.CharacterAdded:Connect(teleportToMoneyPrinterAndServerHop)
